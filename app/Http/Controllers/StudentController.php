@@ -1,68 +1,66 @@
 <?php
+
 namespace App\Http\Controllers;
-use Illuminate\Http\RedirectResponse;
+
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
 use App\Models\Student;
-use Illuminate\View\View;
+use App\Models\StudentDetails;
 
 class StudentController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index() :View
-    {
-        $students = Student::all();
-        return view ('students.index')->with('students', $students);
-    }
+  public function index()
+  {
+    $students = Student::all();
+    return view('students.list', compact('students'));
+  }
 
+  public function create()
+  {
+    return view('students.create');
+  }
+  public function store(Request $request)
+  {
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
+    $student = Student::create([
+      'name' => $request->name,
+      'email' => $request->email,
+      'phone' => $request->phone,
+    ]);
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
+    $student->studentDetails()->create([
+      'address' => $request->address,
+      'course' => $request->course,
+      'roll_no' => $request->rollno,
+    ]);
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
+    return redirect('/students')->with('Success', 'Student and Student Details Created Successfully');
+  }
+  // method for editing the data 
+  public function edit(Student $student)
+  {
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
-    }
+    return view('students.edit', compact('student'));
+  }
+  // method for updating data in to database
+  public function update(Student $student, Request $request)
+  {
+    $student->update([
+      'name' => $request->name,
+      'email' => $request->email,
+      'phone' => $request->phone,
+    ]);
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
+    $student->studentDetails()->update([
+      'address' => $request->address,
+      'course' => $request->course,
+      'roll_no' => $request->rollno,
+    ]);
+    return redirect('students')->with('update', 'Student and Student Details Updated Successfully');
+  }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
-    }
+  // method for deleting our data 
+  public function destroy(Student $student){
+    $student->delete();
+    return redirect('students')->with('Deleted', 'Student and Student Details Deleted Successfully');
+  }
 }
